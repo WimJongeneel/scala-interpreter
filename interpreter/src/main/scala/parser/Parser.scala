@@ -2,17 +2,10 @@ package parser
 
 import lexer._
 
-def tokenPrecedence(token: Token) = token match {
-  case Plus()     => 20
-  case Minus()    => 20
-  case Multiply() => 30
-  case Divide()   => 30
-  case _          => 0
-}
-
 def parsePrefix(token :Token) :Expression = token match {
   case Number(n) => Literal(n)
-  case _ => throw new Exception("Invalid prefix expression: " + token.getClass().getName())
+  case Id(i)     => Reference(i)
+  case _         => throw new Exception("Invalid prefix expression: " + token.getClass().getName())
 }
 
 def infixConstructor(token:Token) :Option[(left: Expression, rigth: Expression) => Expression] = token match {
@@ -27,11 +20,11 @@ def parseInfix(state: ParserState, left: Expression): Option[Expression] = infix
   .map(f => {
     val precedence = state.currentPrecedence()
     state.moveNext()
-    val right = parse(state, precedence)
+    val right = parseExpression(state, precedence)
     f(left, right)
   })
 
-def parse(state: ParserState, precedence: Int = 0): Expression = {
+def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
   
   var left = parsePrefix(state.currentToken())
 
@@ -45,4 +38,25 @@ def parse(state: ParserState, precedence: Int = 0): Expression = {
   }
 
   left
+}
+
+def parseStatement(state: ParserState): AST = {
+  state.currentToken() match {
+    case Let() => {
+      println(ensurePopToken[Let](state))
+      val Id(name) = ensurePopToken[Id](state)
+      ensurePopToken[Equals](state)
+      Declaration(name, parseExpression(state))
+    }
+    case _ => Print(parseExpression(state))
+  }
+}
+
+def ensurePopToken[T <: Token](state: ParserState): T = {
+  val token = state.currentToken()
+  state.moveNext()
+  token match {
+    case t: T => t
+    case _    => throw new Error("invalid token")
+  }
 }
