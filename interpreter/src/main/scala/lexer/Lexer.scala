@@ -57,6 +57,8 @@ def consume(input: String) : (Token, String) = {
     case '/' => (Divide(), input.substring(1))
     case '=' => (Equals(), input.substring(1))
     case ';' => (SemiColon(), input.substring(1))
+    case '(' => (LP(), input.substring(1))
+    case ')' => (RP(), input.substring(1))
     case c => throw new Error("Unexpected char: " + c)
   }
 }

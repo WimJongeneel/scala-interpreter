@@ -14,6 +14,10 @@ def parsePrefix(state: ParserState) :Expression = state.currentToken() match {
     val ifFalse = parseExpression(state)
     IfThenElse(cond, ifTrue, ifFalse)
   }
+  case LP() => {
+    ensurePopToken[LP](state)
+    parseExpression(state)
+  }
   case t: Token   => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
 }
 

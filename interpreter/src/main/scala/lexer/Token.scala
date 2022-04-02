@@ -14,3 +14,5 @@ case class EOF() extends Token
 case class If() extends Token
 case class Then() extends Token
 case class Else() extends Token
+case class LP() extends Token
+case class RP() extends Token
