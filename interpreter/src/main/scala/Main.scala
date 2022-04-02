@@ -5,7 +5,7 @@ import runtime._
 import lexer._
 
 @main def main: Unit = 
-  val code = "let x = 8 * 1 + 2"
+  val code = "let x = if 1 + 1 then 2 else 3 * 3 * 3"
   println(lex(code))
   println(parseStatement(ParserState(lex(code))))
   // while(true) {

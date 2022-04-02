@@ -22,5 +22,7 @@ def tokenPrecedence(token: Token) = token match {
   case Minus()    => 20
   case Multiply() => 30
   case Divide()   => 30
+  case Then()     => 100
+  case Else()     => 100
   case _          => 0
 }

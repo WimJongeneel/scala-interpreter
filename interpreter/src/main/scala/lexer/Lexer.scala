@@ -29,6 +29,21 @@ def consume(input: String) : (Token, String) = {
     case None    => {}
   }
 
+  "^if".r.findFirstMatchIn(input) match {
+    case Some(_) => return (If(), input.substring(2))
+    case None    => {}
+  }
+
+   "^then".r.findFirstMatchIn(input) match {
+    case Some(_) => return (Then(), input.substring(4))
+    case None    => {}
+  }
+
+   "^else".r.findFirstMatchIn(input) match {
+    case Some(_) => return (Else(), input.substring(4))
+    case None    => {}
+  }
+
   "^[a-zA-Z_]+".r.findFirstMatchIn(input) match {
     case Some(n) => return (Id(n.matched), input.substring(n.matched.length))
     case None    => {}

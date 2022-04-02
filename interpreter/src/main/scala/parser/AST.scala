@@ -4,6 +4,7 @@ abstract class Expression
 case class Literal(n: Float) extends Expression
 case class BinaryOperator(left: Expression, operator: String, right: Expression) extends Expression
 case class Reference(name: String) extends Expression
+case class IfThenElse(cond: Expression, ifTrue: Expression, ifFalse: Expression) extends Expression
 
 abstract class AST
 case class Declaration(name: String, expr: Expression) extends AST

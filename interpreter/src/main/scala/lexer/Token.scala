@@ -11,3 +11,6 @@ case class Equals() extends Token
 case class Id(name: String) extends Token
 case class SemiColon() extends Token
 case class EOF() extends Token
+case class If() extends Token
+case class Then() extends Token
+case class Else() extends Token
