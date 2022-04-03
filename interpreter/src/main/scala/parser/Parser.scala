@@ -25,6 +25,14 @@ def parsePrefix(state: ParserState): Expression = state.currentToken() match {
     ensurePopToken[LP](state)
     parseExpression(state)
   }
+  case Not() => {
+    ensurePopToken[Not](state)
+    UnaryOperator("!", parseExpression(state))
+  }
+  case Minus() => {
+    ensurePopToken[Minus](state)
+    UnaryOperator("-", parseExpression(state))
+  }
   case t: Token   => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
 }
 
@@ -33,6 +41,12 @@ def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) 
   case Minus()     => Some((left, rigth) => BinaryOperator(left, "-", rigth))
   case Multiply()  => Some((left, rigth) => BinaryOperator(left, "*", rigth))
   case Divide()    => Some((left, rigth) => BinaryOperator(left, "/", rigth))
+  case And()       => Some((left, rigth) => BinaryOperator(left, "&", rigth))
+  case Or()        => Some((left, rigth) => BinaryOperator(left, "|", rigth))
+  case Smaller()   => Some((left, rigth) => BinaryOperator(left, "<", rigth))
+  case Larger()    => Some((left, rigth) => BinaryOperator(left, ">", rigth))
+  case Equals()    => Some((left, rigth) => BinaryOperator(left, "=", rigth))
+  case NotEquals() => Some((left, rigth) => BinaryOperator(left, "!=", rigth))
   case _           => None
 }
 
@@ -65,7 +79,7 @@ def parseStatement(state: ParserState): AST = {
     case Let() => {
       ensurePopToken[Let](state)
       val Id(name) = ensurePopToken[Id](state)
-      ensurePopToken[Equals](state)
+      ensurePopToken[Assign](state)
       Declaration(name, parseExpression(state))
     }
     case Print() => {

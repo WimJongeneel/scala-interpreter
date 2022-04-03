@@ -27,7 +27,9 @@ def consume(input: String): (Token, String) = {
       ("else", () => Else()),
       ("print", () => Print()),
       ("while", () => While()),
-      ("do", () => Do())
+      ("do", () => Do()),
+      (":=", () => Assign()),
+      ("!=", () => NotEquals())
     ), 
     input
   ) match {
@@ -56,6 +58,11 @@ def consume(input: String): (Token, String) = {
     case ')' => (RP(), input.substring(1))
     case '{' => (LB(), input.substring(1))
     case '}' => (RB(), input.substring(1))
+    case '<' => (Smaller(), input.substring(1))
+    case '>' => (Larger(), input.substring(1))
+    case '&' => (And(), input.substring(1))
+    case '|' => (Or(), input.substring(1))
+    case '!' => (Not(), input.substring(1))
     case c => throw new Error("Unexpected char: " + c)
   }
 }

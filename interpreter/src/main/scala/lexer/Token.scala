@@ -7,7 +7,7 @@ case class Minus() extends Token
 case class Multiply() extends Token
 case class Divide() extends Token
 case class Let() extends Token
-case class Equals() extends Token
+case class Assign() extends Token
 case class Id(name: String) extends Token
 case class SemiColon() extends Token
 case class EOF() extends Token
@@ -21,3 +21,10 @@ case class RB() extends Token
 case class Print() extends Token
 case class While() extends Token
 case class Do() extends Token
+case class Equals() extends Token
+case class NotEquals() extends Token
+case class And() extends Token
+case class Or() extends Token
+case class Larger() extends Token
+case class Smaller() extends Token
+case class Not() extends Token

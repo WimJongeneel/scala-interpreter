@@ -3,6 +3,7 @@ package parser
 abstract class Expression
 case class Literal(n: Float) extends Expression
 case class BinaryOperator(left: Expression, operator: String, right: Expression) extends Expression
+case class UnaryOperator(operator: String, expression: Expression) extends Expression
 case class Reference(name: String) extends Expression
 case class IfThenElse(cond: Expression, ifTrue: Expression, ifFalse: Expression) extends Expression
 case class CodeBlock(statements: List[AST]) extends Expression

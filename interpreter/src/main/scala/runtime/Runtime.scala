@@ -6,13 +6,21 @@ var memory: Map[String, Float] = Map.empty
 
 def runExpression(e: Expression): Float = e match {
   case Literal(n) => n
-  case BinaryOperator(l, "+", r) => runExpression(l) + runExpression(r)
-  case BinaryOperator(l, "-", r) => runExpression(l) - runExpression(r)
-  case BinaryOperator(l, "*", r) => runExpression(l) * runExpression(r)
-  case BinaryOperator(l, "/", r) => runExpression(l) / runExpression(r)
-  case IfThenElse(c, t, f)       => if runExpression(c) == 1 then runExpression(t) else runExpression(f)
-  case Reference(r)              => memory(r)
-  case CodeBlock(s)              => s.foldLeft(.0f)((_, e) => runStatement(e))
+  case BinaryOperator(l, "+", r)    => runExpression(l) + runExpression(r)
+  case BinaryOperator(l, "-", r)    => runExpression(l) - runExpression(r)
+  case BinaryOperator(l, "*", r)    => runExpression(l) * runExpression(r)
+  case BinaryOperator(l, "/", r)    => runExpression(l) / runExpression(r)
+  case BinaryOperator(l, "&", r)    => if runExpression(l) == 1 && runExpression(r) == 1 then 1 else 0
+  case BinaryOperator(l, "|", r)    => if runExpression(l) == 1 || runExpression(r) == 1 then 1 else 0
+  case BinaryOperator(l, "<", r)    => if runExpression(l) < runExpression(r) then 1 else 0
+  case BinaryOperator(l, ">", r)    => if runExpression(l) > runExpression(r) then 1 else 0
+  case BinaryOperator(l, "=", r)    => if runExpression(l) == runExpression(r) then 1 else 0
+  case BinaryOperator(l, "!=", r)   => if runExpression(l) != runExpression(r) then 1 else 0
+  case UnaryOperator("!", e)        => if runExpression(e) == 1 then 0 else 1
+  case UnaryOperator("-", e)        => -1 * runExpression(e) 
+  case IfThenElse(c, t, f)          => if runExpression(c) == 1 then runExpression(t) else runExpression(f)
+  case Reference(r)                 => memory(r)
+  case CodeBlock(s)                 => s.foldLeft(.0f)((_, e) => runStatement(e))
 }
 
 def runStatement(e: AST): Float = e match {
