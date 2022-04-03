@@ -40,3 +40,9 @@ class PrecedenceTests:
       parseExpression(ParserState(lex("{ 1 + 1 } > 2 + 1"))),
       parseExpression(ParserState(lex("({ 1 + 1 }) > (2 + 1)")))
     )
+
+  @Test def t8(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("1 * 1 = 2 > 4 & 1"))),
+      parseExpression(ParserState(lex(("((1 * 1) = (2 > 4)) & 1"))))
+    )
