@@ -16,3 +16,6 @@ case class Then() extends Token
 case class Else() extends Token
 case class LP() extends Token
 case class RP() extends Token
+case class LB() extends Token
+case class RB() extends Token
+case class Print() extends Token

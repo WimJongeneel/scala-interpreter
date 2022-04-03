@@ -17,38 +17,31 @@ def lex(input: String): ArrayBuffer[Token] = {
   result
 }
 
-def consume(input: String) : (Token, String) = {
-  // comsumeRegex helper?
+def consume(input: String): (Token, String) = {
+
+  consumeKeyword(
+    List(
+      ("let", () => Let()),
+      ("if", () => If()),
+      ("then", () => Then()),
+      ("else", () => Else()),
+      ("print", () => Print())
+    ), 
+    input
+  ) match {
+    case Some(r) => return r
+    case None    => {}
+  }
+
   "^[0-9]+".r.findFirstMatchIn(input) match {
     case Some(n) => return (Number(n.matched.toFloat), input.substring(n.matched.length))
     case None    => {}
   }
-  
-  "^let".r.findFirstMatchIn(input) match {
-    case Some(_) => return (Let(), input.substring(3))
-    case None    => {}
-  }
 
-  "^if".r.findFirstMatchIn(input) match {
-    case Some(_) => return (If(), input.substring(2))
-    case None    => {}
-  }
-
-   "^then".r.findFirstMatchIn(input) match {
-    case Some(_) => return (Then(), input.substring(4))
-    case None    => {}
-  }
-
-   "^else".r.findFirstMatchIn(input) match {
-    case Some(_) => return (Else(), input.substring(4))
-    case None    => {}
-  }
-
-  "^[a-zA-Z_]+".r.findFirstMatchIn(input) match {
+  "^[a-zA-Z]+".r.findFirstMatchIn(input) match {
     case Some(n) => return (Id(n.matched), input.substring(n.matched.length))
     case None    => {}
   }
-
 
   input.charAt(0) match {
     case '+' => (Plus(), input.substring(1))
@@ -59,7 +52,19 @@ def consume(input: String) : (Token, String) = {
     case ';' => (SemiColon(), input.substring(1))
     case '(' => (LP(), input.substring(1))
     case ')' => (RP(), input.substring(1))
+    case '{' => (LB(), input.substring(1))
+    case '}' => (RB(), input.substring(1))
     case c => throw new Error("Unexpected char: " + c)
   }
 }
 
+def consumeKeyword(keywords: List[(String, () => Token)], input: String): Option[(Token, String)] = {
+  for((keyword, token) <- keywords) {
+    ("^" + keyword).r.findFirstMatchIn(input) match {
+      case Some(_) => return Some(token(), input.substring(keyword.length))
+      case None    => {}
+    }
+  }
+
+  None
+}

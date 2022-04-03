@@ -2,7 +2,7 @@ package parser
 
 import lexer._
 
-def parsePrefix(state: ParserState) :Expression = state.currentToken() match {
+def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case Number(n) => Literal(n)
   case Id(i)     => Reference(i)
   case If()      => {
@@ -14,6 +14,13 @@ def parsePrefix(state: ParserState) :Expression = state.currentToken() match {
     val ifFalse = parseExpression(state)
     IfThenElse(cond, ifTrue, ifFalse)
   }
+  case LB() => {
+    ensurePopToken[LB](state)
+    var statements = List[AST]()
+    while(state.currentToken() != RB())
+      statements = statements.appended(parseStatement(state))
+    CodeBlock(statements)
+  }
   case LP() => {
     ensurePopToken[LP](state)
     parseExpression(state)
@@ -21,7 +28,7 @@ def parsePrefix(state: ParserState) :Expression = state.currentToken() match {
   case t: Token   => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
 }
 
-def infixConstructor(token:Token) :Option[(left: Expression, rigth: Expression) => Expression] = token match {
+def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) => Expression] = token match {
   case Plus()      => Some((left, rigth) => BinaryOperator(left, "+", rigth))
   case Minus()     => Some((left, rigth) => BinaryOperator(left, "-", rigth))
   case Multiply()  => Some((left, rigth) => BinaryOperator(left, "*", rigth))
@@ -38,7 +45,7 @@ def parseInfix(state: ParserState, left: Expression): Option[Expression] = infix
   })
 
 def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
-  
+
   var left = parsePrefix(state)
 
   while(state.peekToken() != EOF() && precedence < state.peekPrecedence()) {
@@ -54,15 +61,30 @@ def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
 }
 
 def parseStatement(state: ParserState): AST = {
-  state.currentToken() match {
+  val statement = state.currentToken() match {
     case Let() => {
       ensurePopToken[Let](state)
       val Id(name) = ensurePopToken[Id](state)
       ensurePopToken[Equals](state)
       Declaration(name, parseExpression(state))
     }
-    case _ => Print(parseExpression(state))
+    case Print() => {
+      ensurePopToken[Print](state)
+      PrintExpression(parseExpression(state))
+    }
+    case _ => ExpressionStatement(parseExpression(state))
   }
+
+  ensurePopToken[SemiColon](state)
+
+  statement
+}
+
+def parse(state: ParserState): List[AST] = {
+  var statements = List[AST]()
+  while(state.currentToken() != EOF())
+    statements = statements.appended(parseStatement(state))
+  statements
 }
 
 def ensurePopToken[T <: Token](state: ParserState): T = {

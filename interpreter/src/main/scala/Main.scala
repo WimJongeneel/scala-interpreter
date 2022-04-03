@@ -5,11 +5,11 @@ import runtime._
 import lexer._
 
 @main def main: Unit = 
-  val code = "let x = 9 * if 1 * 1 then 2 else 3"
+  val code = "let x = 2; let y = 3; x + y; print 3 * { let r = 2; r * 2; };"
   println(lex(code))
-  println(parseStatement(ParserState(lex(code))))
-  run(parseStatement(ParserState(lex(code))))
-  run(parseStatement(ParserState(lex("x"))))
+  println(parse(ParserState(lex(code))))
+  run(parse(ParserState(lex(code))))
+  // run(parseStatement(ParserState(lex("x"))))
   // while(true) {
   //   val code = readLine()
   //   try {

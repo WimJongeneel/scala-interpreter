@@ -18,14 +18,15 @@ class ParserState(val tokens: ArrayBuffer[Token], val position: Int = 0) {
 }
 
 def tokenPrecedence(token: Token) = token match {
-  case Plus()     => 20
-  case Minus()    => 20
-  case Multiply() => 30
-  case Divide()   => 30
-  case If()       => 100
-  case Then()     => 100
-  case Else()     => 100
-  case LP()       => 100
-  case RP()       => 100
-  case _          => 0
+  case Plus()       => 20
+  case Minus()      => 20
+  case Multiply()   => 30
+  case Divide()     => 30
+  case If()         => 100
+  case Then()       => 100
+  case Else()       => 100
+  case LP()         => 100
+  case RP()         => 100
+  case SemiColon()  => 999
+  case _            => 0
 }
