@@ -25,6 +25,11 @@ def runStatement(e: AST): Float = e match {
     println(runExpression(expression))
     0
   }
+  case WhileLoop(cond, body) => {
+    var result = .0f
+    while(runExpression(cond) == 1) result = runExpression(body)
+    result
+  }
 }
 
 def run(ast: List[AST]): Float = ast.foldLeft(.0f)((_, e) => runStatement(e))

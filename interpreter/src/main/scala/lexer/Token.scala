@@ -19,3 +19,5 @@ case class RP() extends Token
 case class LB() extends Token
 case class RB() extends Token
 case class Print() extends Token
+case class While() extends Token
+case class Do() extends Token

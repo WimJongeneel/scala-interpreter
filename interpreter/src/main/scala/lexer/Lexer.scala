@@ -25,7 +25,9 @@ def consume(input: String): (Token, String) = {
       ("if", () => If()),
       ("then", () => Then()),
       ("else", () => Else()),
-      ("print", () => Print())
+      ("print", () => Print()),
+      ("while", () => While()),
+      ("do", () => Do())
     ), 
     input
   ) match {

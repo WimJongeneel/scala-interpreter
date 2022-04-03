@@ -72,6 +72,13 @@ def parseStatement(state: ParserState): AST = {
       ensurePopToken[Print](state)
       PrintExpression(parseExpression(state))
     }
+    case While() => {
+      ensurePopToken[While](state)
+      val cond = parseExpression(state)
+      ensurePopToken[Do](state)
+      val body = parseExpression(state)
+      WhileLoop(cond, body)
+    }
     case _ => ExpressionStatement(parseExpression(state))
   }
 

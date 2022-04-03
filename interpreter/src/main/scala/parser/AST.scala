@@ -11,3 +11,4 @@ abstract class AST
 case class Declaration(name: String, expr: Expression) extends AST
 case class ExpressionStatement(expr: Expression) extends AST
 case class PrintExpression(expr: Expression) extends AST
+case class WhileLoop(cond: Expression, body: Expression) extends AST

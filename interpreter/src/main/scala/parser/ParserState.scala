@@ -28,5 +28,6 @@ def tokenPrecedence(token: Token) = token match {
   case LP()         => 100
   case RP()         => 100
   case SemiColon()  => 999
+  case Do()         => 999
   case _            => 0
 }
