@@ -1,43 +1,53 @@
 package runtime
 
+import utils.State
 import parser._
 
-var memory: Map[String, Float] = Map.empty
+type MemoryValue = Float
+type Memory = Map[String, MemoryValue]
 
-def runExpression(e: Expression): Float = e match {
-  case Literal(n) => n
-  case BinaryOperator(l, "+", r)    => runExpression(l) + runExpression(r)
-  case BinaryOperator(l, "-", r)    => runExpression(l) - runExpression(r)
-  case BinaryOperator(l, "*", r)    => runExpression(l) * runExpression(r)
-  case BinaryOperator(l, "/", r)    => runExpression(l) / runExpression(r)
-  case BinaryOperator(l, "&", r)    => if runExpression(l) == 1 && runExpression(r) == 1 then 1 else 0
-  case BinaryOperator(l, "|", r)    => if runExpression(l) == 1 || runExpression(r) == 1 then 1 else 0
-  case BinaryOperator(l, "<", r)    => if runExpression(l) < runExpression(r) then 1 else 0
-  case BinaryOperator(l, ">", r)    => if runExpression(l) > runExpression(r) then 1 else 0
-  case BinaryOperator(l, "=", r)    => if runExpression(l) == runExpression(r) then 1 else 0
-  case BinaryOperator(l, "!=", r)   => if runExpression(l) != runExpression(r) then 1 else 0
-  case UnaryOperator("!", e)        => if runExpression(e) == 1 then 0 else 1
-  case UnaryOperator("-", e)        => -1 * runExpression(e) 
-  case IfThenElse(c, t, f)          => if runExpression(c) == 1 then runExpression(t) else runExpression(f)
-  case Reference(r)                 => memory(r)
-  case CodeBlock(s)                 => s.foldLeft(.0f)((_, e) => runStatement(e))
+val RUNTIME_TRUE = 1.0f
+val RUNTIME_FAlSE = 0.0f
+
+def toRuntimeBoolean(b: Boolean): MemoryValue = if b then RUNTIME_TRUE else RUNTIME_FAlSE
+
+def runExpression(e: Expression): State[Memory, MemoryValue] = e match {
+  case Literal(n) => State.unit(n)
+  case BinaryOperator(l, "+", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl + vr))
+  case BinaryOperator(l, "-", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl - vr))
+  case BinaryOperator(l, "*", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl * vr))
+  case BinaryOperator(l, "/", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl / vr))
+  case BinaryOperator(l, "&", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == RUNTIME_TRUE && vr == RUNTIME_TRUE).map(toRuntimeBoolean))
+  case BinaryOperator(l, "|", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == RUNTIME_TRUE || vr == RUNTIME_TRUE).map(toRuntimeBoolean))
+  case BinaryOperator(l, "<", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl < vr).map(toRuntimeBoolean))
+  case BinaryOperator(l, ">", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl > vr).map(toRuntimeBoolean))
+  case BinaryOperator(l, "=", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == vr).map(toRuntimeBoolean))
+  case BinaryOperator(l, "!=", r)   => runExpression(l).bind(vl => runExpression(r).map(vr => vl != vr).map(toRuntimeBoolean))
+  case UnaryOperator("!", e)        => runExpression(e).map(v => if v == RUNTIME_TRUE then RUNTIME_TRUE else RUNTIME_FAlSE)
+  case UnaryOperator("-", e)        => runExpression(e).map(v => v * -1)
+  case IfThenElse(c, t, f)          => runExpression(c).bind(v => if v == RUNTIME_TRUE then runExpression(t) else runExpression(f))
+  case Reference(r)                 => State(memory => (memory, memory(r)))
+  // todo: scoping
+  case CodeBlock(s)                 => s.foldLeft(State.unit(RUNTIME_FAlSE))((s, e) => s.after(runStatement(e)))
 }
 
-def runStatement(e: AST): Float = e match {
-  case Declaration(name, expression) => {
-    memory = memory updated (name, runExpression(expression))
-    0
-  }
+def runStatement(e: AST): State[Memory, MemoryValue] = e match {
+  case Declaration(name, expression) => runExpression(expression).bind(v => State(m => (m updated (name, v), RUNTIME_FAlSE)))
   case ExpressionStatement(expression) => runExpression(expression)
-  case PrintExpression(expression) => {
-    println(runExpression(expression))
-    0
-  }
-  case WhileLoop(cond, body) => {
-    var result = .0f
-    while(runExpression(cond) == 1) result = runExpression(body)
-    result
-  }
+  case PrintExpression(expression) => State(memory => {
+    val (memory1, a) = runExpression(expression).run(memory)
+    println(a)
+    (memory1, RUNTIME_FAlSE)
+  })
+  // case WhileLoop(cond, body) => {
+
+  //   state.unit(FAlSE).
+  //   var result = FALSE
+  //   while(runExpression(cond) == 1) result = runExpression(body)
+  //   result
+  // }
 }
 
-def run(ast: List[AST]): Float = ast.foldLeft(.0f)((_, e) => runStatement(e))
+def run(ast: List[AST]): MemoryValue = ast
+  .foldLeft(State.unit[Memory, MemoryValue](RUNTIME_FAlSE))((s, e) => s.after(runStatement(e)))
+  .eval(Map.empty)
