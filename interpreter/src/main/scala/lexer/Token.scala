@@ -28,3 +28,4 @@ case class Or() extends Token
 case class Larger() extends Token
 case class Smaller() extends Token
 case class Not() extends Token
+case class Arrow() extends Token

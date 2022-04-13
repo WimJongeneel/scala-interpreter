@@ -8,6 +8,7 @@ type Memory = Map[String, MemoryValue]
 
 val RUNTIME_TRUE = 1.0f
 val RUNTIME_FAlSE = 0.0f
+val RUNTIME_NULL = RUNTIME_FAlSE
 
 def toRuntimeBoolean(b: Boolean): MemoryValue = if b then RUNTIME_TRUE else RUNTIME_FAlSE
 
@@ -28,16 +29,16 @@ def runExpression(e: Expression): State[Memory, MemoryValue] = e match {
   case IfThenElse(c, t, f)          => runExpression(c).bind(v => if v == RUNTIME_TRUE then runExpression(t) else runExpression(f))
   case Reference(r)                 => State(memory => (memory, memory(r)))
   // todo: scoping
-  case CodeBlock(s)                 => s.foldLeft(State.unit(RUNTIME_FAlSE))((s, e) => s.after(runStatement(e)))
+  case CodeBlock(s)                 => s.foldLeft(State.unit(RUNTIME_NULL))((s, e) => s.after(runStatement(e)))
 }
 
 def runStatement(e: AST): State[Memory, MemoryValue] = e match {
-  case Declaration(name, expression) => runExpression(expression).bind(v => State(m => (m updated (name, v), RUNTIME_FAlSE)))
+  case Declaration(name, expression) => runExpression(expression).bind(v => State(m => (m updated (name, v), RUNTIME_NULL)))
   case ExpressionStatement(expression) => runExpression(expression)
   case PrintExpression(expression) => State(memory => {
     val (memory1, a) = runExpression(expression).run(memory)
     println(a)
-    (memory1, RUNTIME_FAlSE)
+    (memory1, RUNTIME_NULL)
   })
   // case WhileLoop(cond, body) => {
 
@@ -48,6 +49,8 @@ def runStatement(e: AST): State[Memory, MemoryValue] = e match {
   // }
 }
 
-def run(ast: List[AST]): MemoryValue = ast
-  .foldLeft(State.unit[Memory, MemoryValue](RUNTIME_FAlSE))((s, e) => s.after(runStatement(e)))
-  .eval(Map.empty)
+def run(ast: List[AST]): MemoryValue = 
+  val emptyState = State.unit[Memory, MemoryValue](RUNTIME_NULL)
+
+  ast.foldLeft(emptyState)((s, e) => s.after(runStatement(e)))
+    .eval(Map.empty)

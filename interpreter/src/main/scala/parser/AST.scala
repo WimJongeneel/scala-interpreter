@@ -7,6 +7,8 @@ case class UnaryOperator(operator: String, expression: Expression) extends Expre
 case class Reference(name: String) extends Expression
 case class IfThenElse(cond: Expression, ifTrue: Expression, ifFalse: Expression) extends Expression
 case class CodeBlock(statements: List[AST]) extends Expression
+case class Function(argument: String, body: Expression) extends Expression
+case class FunctionCall(function: Expression, argument: Expression) extends Expression
 
 abstract class AST
 case class Declaration(name: String, expr: Expression) extends AST
@@ -22,6 +24,7 @@ def show(e: Expression, tabs: String = "\t"): String = {
         case Reference(n) => "Reference("+n+")"
         case IfThenElse(c, t, f) => s"IfThenElse(\n$tabs" + show(c, tabs + "\t") + s"\n$tabs" + show(t, tabs + "\t") + s"\n$tabs" + show(f, tabs + "\t") + "\n)"
         case CodeBlock(e) => "CodeBlock(" + e.foldLeft(tabs)((r, e) => r + "\n" + tabs + showAST(e)) + "\n)"
+        case Function(a, b) => s"Function(\n$tabs" + a + s"\n$tabs" + show(b, tabs + "\t") + "\n)"
     }
 }
 

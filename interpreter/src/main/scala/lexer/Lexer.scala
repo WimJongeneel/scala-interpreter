@@ -29,7 +29,8 @@ def consume(input: String): (Token, String) = {
       ("while", () => While()),
       ("do", () => Do()),
       (":=", () => Assign()),
-      ("!=", () => NotEquals())
+      ("!=", () => NotEquals()),
+      ("->", () => Arrow())
     ), 
     input
   ) match {

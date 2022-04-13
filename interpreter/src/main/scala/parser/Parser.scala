@@ -4,8 +4,14 @@ import lexer._
 
 def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case Number(n) => Literal(n)
-  case Id(i)     => Reference(i)
-  case If()      => {
+  case Id(i) => {
+    if state.peekToken() == Arrow() then 
+      ensurePopToken[Id](state)
+      ensurePopToken[Arrow](state)
+      Function(i, parseExpression(state))
+    else Reference(i)
+  }
+  case If() => {
     ensurePopToken[If](state)
     val cond = parseExpression(state)
     ensurePopToken[Then](state)
@@ -20,6 +26,7 @@ def parsePrefix(state: ParserState): Expression = state.currentToken() match {
     while(state.currentToken() != RB())
       statements = statements.appended(parseStatement(state))
     CodeBlock(statements)
+
   }
   case LP() => {
     ensurePopToken[LP](state)
@@ -33,7 +40,7 @@ def parsePrefix(state: ParserState): Expression = state.currentToken() match {
     ensurePopToken[Minus](state)
     UnaryOperator("-", parseExpression(state))
   }
-  case t: Token   => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
+  case t: Token => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
 }
 
 def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) => Expression] = token match {
@@ -63,7 +70,11 @@ def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
   var left = parsePrefix(state)
 
   while(state.peekToken() != EOF() && precedence < state.peekPrecedence()) {
+    // if peek == LB?
+    
     state.moveNext()
+
+    // if peek == LB?
 
     parseInfix(state, left) match {
       case None           => return left

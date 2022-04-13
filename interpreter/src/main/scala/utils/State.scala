@@ -13,7 +13,7 @@ case class State[S, A](run: S => (S, A)) {
         val (_, a) = run(s0)
         (state, a)
     })
-    
+
     def modify(update: S => S): State[S, A] = State(s0 => {
         val (s1, a) = run(s0)
         (update(s1), a)
@@ -24,12 +24,18 @@ case class State[S, A](run: S => (S, A)) {
         state.run(s1)
     })
 
+    def before(state: State[S, A]): State[S, A] = State(s0 => {
+        val (s1, a) = state.run(s0)
+        run(s1)
+    })
+
     def eval(state: S): A = run(state)._2
 
     def exec(state: S): S = run(state)._1
 }
 
 object State {
+
     def unit[S, A](value: A): State[S, A] = State(s => (s, value))
 
     def join[S, A](state: State[S, State[S, A]]): State[S, A] = State(s0 => {
