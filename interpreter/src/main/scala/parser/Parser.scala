@@ -2,6 +2,17 @@ package parser
 
 import lexer._
 
+def tryParseFunctionCall(state: ParserState, current: Expression) = {
+  var result = current
+
+  while state.currentToken() == LP() do
+    ensurePopToken[LP](state)
+    result = FunctionCall(result, parseExpression(state))
+    ensurePopToken[RP](state)
+
+  result
+}
+
 def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case Number(n) => Literal(n)
   case Id(i) => {
@@ -70,19 +81,16 @@ def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
   var left = parsePrefix(state)
 
   while(state.peekToken() != EOF() && precedence < state.peekPrecedence()) {
-    // if peek == LB?
-    
     state.moveNext()
 
-    // if peek == LB?
-
+    
     parseInfix(state, left) match {
-      case None           => return left
+      case None           => return tryParseFunctionCall(state, left)
       case Some(newLeft)  => left = newLeft 
     }
   }
 
-  left
+  tryParseFunctionCall(state, left)
 }
 
 def parseStatement(state: ParserState): AST = {
