@@ -10,6 +10,9 @@ class ParserState(val tokens: ArrayBuffer[Token], val position: Int = 0) {
 
   def currentToken(): Token = tokens(_position)
 
+  def prevvToken() = tokens(_position - 1)
+
+
   def moveNext() = _position = _position + 1
 
   def currentPrecedence() = tokenPrecedence(tokens(_position))

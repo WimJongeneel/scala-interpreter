@@ -34,3 +34,33 @@ class FunctionParsingTests:
       parseExpression(ParserState(lex("foo(1)(2)"))),
       FunctionCall(FunctionCall(Reference("foo"), Literal(1)), Literal(2))
     )
+
+  @Test def t6(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("{x -> y -> x + y;}(1)(2)"))),
+      FunctionCall(FunctionCall(CodeBlock(List(ExpressionStatement(Function("x", Function("y", BinaryOperator(Reference("x"), "+", Reference("y"))))))), Literal(1)), Literal(2))
+    )
+
+  @Test def t61(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("(x -> y -> x + y)(1)(2)"))),
+      FunctionCall(FunctionCall(Function("x", Function("y", BinaryOperator(Reference("x"), "+", Reference("y")))), Literal(1)), Literal(2))
+    )
+
+  @Test def t7(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("{foo;}(1)(2)"))),
+      FunctionCall(FunctionCall(CodeBlock(List(ExpressionStatement(Reference("foo")))), Literal(1)), Literal(2))
+    )
+
+  @Test def t71(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("(foo)(1)(2)"))),
+      FunctionCall(FunctionCall(Reference("foo"), Literal(1)), Literal(2))
+    )
+
+  @Test def t8(): Unit = 
+    assertEquals(
+      parseExpression(ParserState(lex("{x -> y -> x + y;}(1)(2)"))),
+      FunctionCall(FunctionCall(CodeBlock(List(ExpressionStatement(Function("x", Function("y", BinaryOperator(Reference("x"), "+", Reference("y"))))))), Literal(1)), Literal(2))
+    )

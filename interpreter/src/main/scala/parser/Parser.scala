@@ -1,5 +1,7 @@
 package parser
 
+import scala.reflect._
+
 import lexer._
 
 def tryParseFunctionCall(state: ParserState, current: Expression) = {
@@ -14,13 +16,20 @@ def tryParseFunctionCall(state: ParserState, current: Expression) = {
 }
 
 def parsePrefix(state: ParserState): Expression = state.currentToken() match {
-  case Number(n) => Literal(n)
+  case Number(n) => {
+    val t = Literal(n)
+    state.moveNext()
+    t
+  }
   case Id(i) => {
     if state.peekToken() == Arrow() then 
       ensurePopToken[Id](state)
       ensurePopToken[Arrow](state)
       Function(i, parseExpression(state))
-    else Reference(i)
+    else 
+      val t = Reference(i)
+      state.moveNext()
+      t
   }
   case If() => {
     ensurePopToken[If](state)
@@ -34,14 +43,18 @@ def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case LB() => {
     ensurePopToken[LB](state)
     var statements = List[AST]()
+
     while(state.currentToken() != RB())
       statements = statements.appended(parseStatement(state))
-    CodeBlock(statements)
 
+    ensurePopToken[RB](state)
+    CodeBlock(statements)
   }
   case LP() => {
     ensurePopToken[LP](state)
-    parseExpression(state)
+    val t = parseExpression(state)
+    ensurePopToken[RP](state)
+    t
   }
   case Not() => {
     ensurePopToken[Not](state)
@@ -80,10 +93,7 @@ def parseExpression(state: ParserState, precedence: Int = 0): Expression = {
 
   var left = parsePrefix(state)
 
-  while(state.peekToken() != EOF() && precedence < state.peekPrecedence()) {
-    state.moveNext()
-
-    
+  while(state.currentToken() != EOF() && precedence < state.currentPrecedence()) {
     parseInfix(state, left) match {
       case None           => return tryParseFunctionCall(state, left)
       case Some(newLeft)  => left = newLeft 
@@ -127,11 +137,10 @@ def parse(state: ParserState): List[AST] = {
   statements
 }
 
-def ensurePopToken[T <: Token](state: ParserState): T = {
+def ensurePopToken[T <: Token](state: ParserState)(implicit tag: ClassTag[T]): T = {
   val token = state.currentToken()
   state.moveNext()
-  token match {
-    case t: T => t
-    case _    => throw new Error("invalid token")
-  }
+  if token.getClass.getName == tag.runtimeClass.getName 
+  then token.asInstanceOf[T]
+  else throw new Error("Expected " + tag.runtimeClass.getName + ", got " + token.getClass.getName)
 }
