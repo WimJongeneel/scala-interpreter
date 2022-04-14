@@ -15,6 +15,7 @@ case class Declaration(name: String, expr: Expression) extends AST
 case class ExpressionStatement(expr: Expression) extends AST
 case class PrintExpression(expr: Expression) extends AST
 case class WhileLoop(cond: Expression, body: Expression) extends AST
+case class AssignStatement(name: String, expr: Expression) extends AST
 
 def show(e: Expression, tabs: String = "\t"): String = {
     e match {
@@ -32,6 +33,7 @@ def show(e: Expression, tabs: String = "\t"): String = {
 def showAST(e: AST, tabs: String = "\t"): String = {
     e match {
         case Declaration(n, e) => s"Declaration(\n$tabs" + n + s"\n$tabs" + show(e, tabs + "\t") + "\n)"
+        case AssignStatement(n, e) => s"AssignStatement(\n$tabs" + n + s"\n$tabs" + show(e, tabs + "\t") + "\n)"
         case ExpressionStatement(e) => "Expression(" + show(e, tabs + "\t") + ")"
         case PrintExpression(e) => "Print(" + show(e, tabs + "\t") + ")"
         case WhileLoop(c, b) => s"WhileLoop(\n$tabs" + show(c, tabs + "\t") + s",\n$tabs" + show(b, tabs + "\t") + "\n)"

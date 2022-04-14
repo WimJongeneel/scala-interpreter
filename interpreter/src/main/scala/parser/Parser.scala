@@ -122,6 +122,11 @@ def parseStatement(state: ParserState): AST = {
       val body = parseExpression(state)
       WhileLoop(cond, body)
     }
+    case Id(n) if state.peekToken() == Assign() => {
+      ensurePopToken[Id](state)
+      ensurePopToken[Assign](state)
+      AssignStatement(n, parseExpression(state))
+    }
     case _ => ExpressionStatement(parseExpression(state))
   }
 

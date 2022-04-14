@@ -9,10 +9,10 @@ import lexer._
   // val code = "let x := 1; while 1 do { print x + 2; };"
   // val code = "print 1 & 1 = 1 * -1"
   // val code = "(if 1 then 1 else 1)"
-  val code = "({ 1 + 1; })"
+  val code = "a := 1 + 1;"
   println(lex(code))
-  println(show(parseExpression(ParserState(lex(code)))))
-  run(parse(ParserState(lex("print " + code + ";"))))
+  println(showAST(parse(ParserState(lex(code)))(0)))
+  // run(parse(ParserState(lex("print " + code + ";"))))
   // run(parseStatement(ParserState(lex("x"))))
   // while(true) {
   //   val code = readLine()
