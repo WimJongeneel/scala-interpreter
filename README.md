@@ -51,7 +51,7 @@ A function is called by providing its formal parameter between parentheses:
 Codeblocks can be used as expressions. They have their own lexial scoping. A codeblock can contain both statements and expressions. The value the last statement evaluates to is what the entire codeblock evaluates to.
 
 ```
-{ let a := 1 + 2; print a; 2 }
+{ let a := 1 + 2; print a; 2; }
 ```
 
 **Conditional**
