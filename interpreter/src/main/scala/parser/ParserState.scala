@@ -12,7 +12,6 @@ class ParserState(val tokens: ArrayBuffer[Token], val position: Int = 0) {
 
   def prevvToken() = tokens(_position - 1)
 
-
   def moveNext() = _position = _position + 1
 
   def currentPrecedence() = tokenPrecedence(tokens(_position))
@@ -20,7 +19,7 @@ class ParserState(val tokens: ArrayBuffer[Token], val position: Int = 0) {
   def peekPrecedence() = tokenPrecedence(tokens(_position + 1))
 }
 
-def tokenPrecedence(token: Token) = token match {
+private def tokenPrecedence(token: Token) = token match {
   case Plus()       => 40
   case Minus()      => 40
   case Multiply()   => 50

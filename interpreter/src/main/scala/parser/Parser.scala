@@ -4,7 +4,7 @@ import scala.reflect._
 
 import lexer._
 
-def tryParseFunctionCall(state: ParserState, current: Expression) = {
+private def tryParseFunctionCall(state: ParserState, current: Expression) = {
   var result = current
 
   while state.currentToken() == LP() do
@@ -15,7 +15,7 @@ def tryParseFunctionCall(state: ParserState, current: Expression) = {
   result
 }
 
-def parsePrefix(state: ParserState): Expression = state.currentToken() match {
+private def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case Number(n) => {
     val t = Literal(n)
     state.moveNext()
@@ -67,7 +67,7 @@ def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case t: Token => throw new Exception("Invalid prefix expression: " + t.getClass().getName())
 }
 
-def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) => Expression] = token match {
+private def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) => Expression] = token match {
   case Plus()      => Some((left, rigth) => BinaryOperator(left, "+", rigth))
   case Minus()     => Some((left, rigth) => BinaryOperator(left, "-", rigth))
   case Multiply()  => Some((left, rigth) => BinaryOperator(left, "*", rigth))
@@ -81,7 +81,7 @@ def infixConstructor(token:Token): Option[(left: Expression, rigth: Expression) 
   case _           => None
 }
 
-def parseInfix(state: ParserState, left: Expression): Option[Expression] = infixConstructor(state.currentToken())
+private def parseInfix(state: ParserState, left: Expression): Option[Expression] = infixConstructor(state.currentToken())
   .map(f => {
     val precedence = state.currentPrecedence()
     state.moveNext()
@@ -142,7 +142,7 @@ def parse(state: ParserState): List[AST] = {
   statements
 }
 
-def ensurePopToken[T <: Token](state: ParserState)(implicit tag: ClassTag[T]): T = {
+private def ensurePopToken[T <: Token](state: ParserState)(implicit tag: ClassTag[T]): T = {
   val token = state.currentToken()
   state.moveNext()
   if token.getClass.getName == tag.runtimeClass.getName 
