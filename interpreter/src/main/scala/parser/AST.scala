@@ -7,7 +7,7 @@ case class UnaryOperator(operator: String, expression: Expression) extends Expre
 case class Reference(name: String) extends Expression
 case class IfThenElse(cond: Expression, ifTrue: Expression, ifFalse: Expression) extends Expression
 case class CodeBlock(statements: List[AST]) extends Expression
-case class FunctionDefinition(parameter: String, body: Expression) extends Expression
+case class FunctionDefinition(parameter: String, body: Expression, closure: Set[String]) extends Expression
 case class FunctionCall(function: Expression, argument: Expression) extends Expression
 
 abstract class AST
@@ -25,7 +25,7 @@ object Expression {
         case Reference(n) => "Reference("+n+")"
         case IfThenElse(c, t, f) => s"IfThenElse(\n$tabs" + show(c, tabs + "\t") + s"\n$tabs" + show(t, tabs + "\t") + s"\n$tabs" + show(f, tabs + "\t") + "\n)"
         case CodeBlock(e) => "CodeBlock(" + e.foldLeft(tabs)((r, e) => r + "\n" + tabs + AST.show(e)) + "\n)"
-        case FunctionDefinition(a, b) => s"Function(\n$tabs" + a + s"\n$tabs" + show(b, tabs + "\t") + "\n)"
+        case FunctionDefinition(a, b, c) => s"Function(\n$tabs" + a + s"\n$tabs" + show(b, tabs + "\t") + s"\n$tabs" + c + "\n)"
         case FunctionCall(b, a) => s"FunctionCall(\n$tabs" + show(b, tabs + "\t") + s"\n$tabs" + show(a, tabs + "\t") + "\n)"
     }
 }

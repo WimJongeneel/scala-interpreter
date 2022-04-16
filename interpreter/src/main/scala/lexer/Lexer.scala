@@ -4,12 +4,12 @@ import scala.collection.mutable.ArrayBuffer
 
 def lex(input: String): ArrayBuffer[Token] = {
   val result = new ArrayBuffer[Token]
-  var remaining = input.replaceAll("^\\s", "")
+  var remaining = input.replaceAll("^\\s+", "")
 
   while(remaining.length > 0) {
     val (token, r) = consume(remaining)
     result += token
-    remaining = r.replaceAll("^\\s", "")
+    remaining = r.replaceAll("^\\s+", "")
   }
 
   result += EOF()

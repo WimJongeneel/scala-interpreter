@@ -3,25 +3,20 @@ import scala.io.StdIn.readLine
 import parser._
 import runtime._
 import lexer._
+import transformers._
 
 @main def main: Unit = 
-  // val code = "let x := 2; let y := 3; x + y; print 3 * { let r := if x then 1 + 1 else 1 + 1 + 1; r * 2; };"
-  // val code = "let x := 1; while 1 do { print x + 2; };"
-  // val code = "print 1 & 1 = 1 * -1"
-  // val code = "(if 1 then 1 else 1)"
-  val code = "print (a -> b -> a + b)(1)(2);"
-  println(lex(code))
-  println(AST.show(parse(ParserState(lex(code)))(0)))
-  Runtime.run(parse(ParserState(lex(code))))
-  // run(parseStatement(ParserState(lex("x"))))
-  // while(true) {
-  //   val code = readLine()
-  //   try {
-  //     // println(run(parseExpression(ParserState(lex(code)))))
-  //   } catch{
-  //      case e: Throwable => println(e.getMessage())
-  //   }
-  // }
+  val code = "let q := 1; let f := { let w := 2; a -> { let x := 1; x + a + w; }; }; print f(1);"
+
+  val program = ProgramBuilder.parse(code)
+    .withTransformer(ClosureTransformer)
+    .withTransformer(ShadowReferenceTransformer)
+    // .withTransformer(LiteralOptimizerTransformer)
+    .program
+
+  program.print
+
+  program.run
 
 
 
