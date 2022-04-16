@@ -1,5 +1,13 @@
 # Scala Interpreter
 
+The [Program](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/Program.scala) class is the entry point of the interpreter. The process of executing code goes through the following steps:
+* [Lexer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/lexer/Lexer.scala): scans the input into tokes
+* [Parser](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/parser/Parser.scala): uses an operator-precedence parser to construct the AST
+* Transformers:
+    * [ClosureTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ClosureTransformer.scala): adds closures to function definitions
+    * [ShadowReferenceTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ShadowReferenceTransformer.scala): renames variables to prevent shadowing (WIP)
+* [Runtime](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/runtime/Runtime.scala): executes the code with a treewalker
+
 ## Values and types
 
 There are four runtime types in this language: `Number`, `Bool`, `Null` and `Function`. Values are loosely typed and will be converted when needed:
