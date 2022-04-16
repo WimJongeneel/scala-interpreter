@@ -30,7 +30,10 @@ def consume(input: String): (Token, String) = {
       ("do", () => Do()),
       (":=", () => Assign()),
       ("!=", () => NotEquals()),
-      ("->", () => Arrow())
+      ("->", () => Arrow()),
+      ("true", () => True()),
+      ("false", () => False()),
+      ("null", () => Null()),
     ), 
     input
   ) match {

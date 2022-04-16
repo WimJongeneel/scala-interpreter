@@ -6,34 +6,48 @@ import parser._
 object Runtime {
 
   def runExpression(e: Expression): State[Memory, MemoryValue] = e match {
-    case Literal(n) => State.unit(n)
-    case BinaryOperator(l, "+", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl + vr))
-    case BinaryOperator(l, "-", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl - vr))
-    case BinaryOperator(l, "*", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl * vr))
-    case BinaryOperator(l, "/", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl / vr))
-    case BinaryOperator(l, "&", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == Memory.RUNTIME_TRUE && vr == Memory.RUNTIME_TRUE).map(toRuntimeBoolean))
-    case BinaryOperator(l, "|", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == Memory.RUNTIME_TRUE || vr == Memory.RUNTIME_TRUE).map(toRuntimeBoolean))
-    case BinaryOperator(l, "<", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl < vr).map(toRuntimeBoolean))
-    case BinaryOperator(l, ">", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl > vr).map(toRuntimeBoolean))
-    case BinaryOperator(l, "=", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => vl == vr).map(toRuntimeBoolean))
-    case BinaryOperator(l, "!=", r)   => runExpression(l).bind(vl => runExpression(r).map(vr => vl != vr).map(toRuntimeBoolean))
-    case UnaryOperator("!", e)        => runExpression(e).map(v => if v == Memory.RUNTIME_TRUE then Memory.RUNTIME_TRUE else Memory.RUNTIME_FAlSE)
-    case UnaryOperator("-", e)        => runExpression(e).map(v => v * -1)
-    case IfThenElse(c, t, f)          => runExpression(c).bind(v => if v == Memory.RUNTIME_TRUE then runExpression(t) else runExpression(f))
+    case Literal(n)                   => n match {
+                                          case f: Float => State.unit(Number(f))
+                                          case true     => State.unit(MemoryValue.runtimeTrue)
+                                          case false    => State.unit(MemoryValue.runtimeFalse)
+                                          case _        => State.unit(MemoryValue.runtimeNull)
+    }
+    case BinaryOperator(l, "+", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Number(vl.toFloat.value + vr.toFloat.value)))
+    case BinaryOperator(l, "-", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Number(vl.toFloat.value - vr.toFloat.value)))
+    case BinaryOperator(l, "*", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Number(vl.toFloat.value * vr.toFloat.value)))
+    case BinaryOperator(l, "/", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Number(vl.toFloat.value / vr.toFloat.value)))
+    case BinaryOperator(l, "&", r)    => runExpression(l).bind(
+                                          vl => runExpression(r).map(vr => if vl.toBool.value && vr.toBool.value then MemoryValue.runtimeTrue else MemoryValue.runtimeFalse)
+                                        )
+    case BinaryOperator(l, "|", r)    => runExpression(l).bind(
+                                          vl => runExpression(r).map(vr => if vl.toBool.value || vr.toBool.value then MemoryValue.runtimeTrue else MemoryValue.runtimeFalse)
+                                        )
+    case BinaryOperator(l, "<", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Bool(vl.toBool.value < vr.toBool.value)))
+    case BinaryOperator(l, ">", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Bool(vl.toBool.value > vr.toBool.value)))
+    case BinaryOperator(l, "=", r)    => runExpression(l).bind(vl => runExpression(r).map(vr => Bool(vl.toBool.value == vr.toBool.value)))
+    case BinaryOperator(l, "!=", r)   => runExpression(l).bind(vl => runExpression(r).map(vr => Bool(vl.toBool.value != vr.toBool.value)))
+    case UnaryOperator("!", e)        => runExpression(e).map(v => if v.toBool.value then MemoryValue.runtimeFalse else MemoryValue.runtimeTrue)
+    case UnaryOperator("-", e)        => runExpression(e).map(v => Number(v.toFloat.value * -1))
+    case IfThenElse(c, t, f)          => runExpression(c).bind(v => if v.toBool.value then runExpression(t) else runExpression(f))
     case Reference(r)                 => State(memory => (memory, memory.read(r)))
-    case CodeBlock(s)                 => s.foldLeft(State.unit[Memory, MemoryValue](Memory.RUNTIME_NULL).modify(m => m.addFrame))
+    case CodeBlock(s)                 => s.foldLeft(State.unit[Memory, MemoryValue](MemoryValue.runtimeNull).modify(m => m.addFrame))
                                           ((s, e) => s.after(runStatement(e)))
                                           .modify(m => m.dropFrame)
   }
 
   def runStatement(e: AST): State[Memory, MemoryValue] = e match {
-    case Declaration(name, expression) => runExpression(expression).bind(v => State(m => (m.declare(name, v), Memory.RUNTIME_NULL)))
-    case AssignStatement(name, expression) => runExpression(expression).bind(v => State(m => (m.assign(name, v), Memory.RUNTIME_NULL)))
+    case Declaration(name, expression) => runExpression(expression).bind(v => State(m => (m.declare(name, v), MemoryValue.runtimeNull)))
+    case AssignStatement(name, expression) => runExpression(expression).bind(v => State(m => (m.assign(name, v), MemoryValue.runtimeNull)))
     case ExpressionStatement(expression) => runExpression(expression)
     case PrintExpression(expression) => State(memory => {
       val (memory1, a) = runExpression(expression).run(memory)
-      println(a)
-      (memory1, Memory.RUNTIME_NULL)
+      println(a match {
+        case Number(n)  => n
+        case Bool(b)    => b
+        case Null()     => "null"
+        case _          => "<function>"
+      })
+      (memory1, MemoryValue.runtimeNull)
     })
     // case WhileLoop(cond, body) => {
 
@@ -45,10 +59,8 @@ object Runtime {
   }
 
   def run(ast: List[AST]): MemoryValue = 
-    val emptyState = State.unit[Memory, MemoryValue](Memory.RUNTIME_NULL)
+    val emptyState = State.unit[Memory, MemoryValue](MemoryValue.runtimeNull)
 
     ast.foldLeft(emptyState)((s, e) => s.after(runStatement(e)))
       .eval(Memory.empty)
-
-  private def toRuntimeBoolean(b: Boolean): MemoryValue = if b then Memory.RUNTIME_TRUE else Memory.RUNTIME_FAlSE
 }

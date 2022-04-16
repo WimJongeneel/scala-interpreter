@@ -1,7 +1,7 @@
 package parser
 
 abstract class Expression
-case class Literal(n: Float) extends Expression
+case class Literal(n: Any) extends Expression
 case class BinaryOperator(left: Expression, operator: String, right: Expression) extends Expression
 case class UnaryOperator(operator: String, expression: Expression) extends Expression
 case class Reference(name: String) extends Expression
@@ -19,7 +19,7 @@ case class AssignStatement(name: String, expr: Expression) extends AST
 
 object Expression {
     def show(e: Expression, tabs: String = "\t"): String = e match {
-        case Literal(n) => n.toString
+        case Literal(n) => if n == null then "null" else n.toString
         case UnaryOperator(o, e) => s"UnaryOperator(\n$tabs" + o + s"\n$tabs" + show(e, tabs + "\t") + "\n)"
         case BinaryOperator(l, o, r) => s"BinaryOperator(\n$tabs" + show(l, tabs + "\t") + s"\n$tabs" + o + s"\n$tabs" + show(r, tabs + "\t") + "\n)"
         case Reference(n) => "Reference("+n+")"

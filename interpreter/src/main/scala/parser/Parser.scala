@@ -21,6 +21,21 @@ private def parsePrefix(state: ParserState): Expression = state.currentToken() m
     state.moveNext()
     t
   }
+  case True() => {
+    val t = Literal(true)
+    state.moveNext()
+    t
+  }
+  case False() => {
+    val t = Literal(false)
+    state.moveNext()
+    t
+  }
+  case Null() => {
+    val t = Literal(null)
+    state.moveNext()
+    t
+  }
   case Id(i) => {
     if state.peekToken() == Arrow() then 
       ensurePopToken[Id](state)

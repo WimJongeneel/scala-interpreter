@@ -9,7 +9,7 @@ import lexer._
   // val code = "let x := 1; while 1 do { print x + 2; };"
   // val code = "print 1 & 1 = 1 * -1"
   // val code = "(if 1 then 1 else 1)"
-  val code = "let a:= 2; print a; a := 1 + 2 * 3; print a; { a := 3; let a := 4; a:= 5; print a; }; print a;"
+  val code = "if 1 & true then { print true + false * null; } else { print 2; };"
   println(lex(code))
   println(AST.show(parse(ParserState(lex(code)))(0)))
   Runtime.run(parse(ParserState(lex(code))))

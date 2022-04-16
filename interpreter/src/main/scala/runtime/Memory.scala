@@ -1,6 +1,5 @@
 package runtime
 
-type MemoryValue = Float
 type MemoryFrame = Map[String, MemoryValue]
 
 case class Memory(val memory: List[MemoryFrame]) {
@@ -17,7 +16,7 @@ case class Memory(val memory: List[MemoryFrame]) {
     def read(name: String): MemoryValue = memory
         .find(frame => frame.contains(name))
         .flatMap(frame => frame.get(name))
-        .getOrElse(Memory.RUNTIME_NULL)
+        .getOrElse(MemoryValue.runtimeNull)
 
     def assign(name: String, value: MemoryValue): Memory = {
         val frameIndex = memory.indexWhere(frame => frame.contains(name))

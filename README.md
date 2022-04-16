@@ -1,8 +1,22 @@
 # Scala Interpreter
 
-## Expressions
+## Values and types
 
-All expression evaluate to a `Float`. `1` and `0` are used for the result of boolean operators.
+There are four runtime types in this language: `Number`, `Bool`, `Null` and `Function`. Values are loosely typed and will be converted when needed:
+
+| value    | Number  | Bool    | Function    |
+|----------|---------|---------|-------------|
+| 0        | `self`  | `false` | `_ -> self` |
+| 1        | `self`  | `true`  | `_ -> self` |
+| Number   | `self`  | error   | `_ -> self` |
+| true     | `1`     | `self`  | `_ -> self` |
+| false    | `0`     | `self`  | `_ -> self` |
+| null     | error   | error   | error       |
+| Function | error   | error   | `self`      |
+
+Bools are constructed by the `true` and `false` keyword. A null value can be created with `null`. Numbers are created via literal values, e.g. `1` or `42`
+
+## Expressions
 
 **Algebraic:**
 ```
