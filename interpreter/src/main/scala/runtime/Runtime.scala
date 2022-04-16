@@ -33,6 +33,18 @@ object Runtime {
     case CodeBlock(s)                 => s.foldLeft(State.unit[Memory, MemoryValue](MemoryValue.runtimeNull).modify(m => m.addFrame))
                                           ((s, e) => s.after(runStatement(e)))
                                           .modify(m => m.dropFrame)
+    case FunctionDefinition(a, b)     => {
+                                          // TODO: extract closure
+                                          val closure = Map.empty[String, MemoryValue]
+                                          State.unit(Function(a, b, closure))
+                                        }
+    case FunctionCall(e, p)           => runExpression(e).bind(f => runExpression(p).bind(pv => {
+                                          val Function(a, b, c) = f.toFunction
+                                          val m0 = Memory(List(c)).addFrame.declare(a, pv).addFrame
+                                          val (m1, r) = runExpression(b).run(m0)
+                                          // TODO: process mutations to captured variables in the closure
+                                          State.unit(r)
+                                        }))
   }
 
   def runStatement(e: AST): State[Memory, MemoryValue] = e match {

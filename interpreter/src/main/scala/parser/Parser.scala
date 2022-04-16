@@ -40,7 +40,7 @@ private def parsePrefix(state: ParserState): Expression = state.currentToken() m
     if state.peekToken() == Arrow() then 
       ensurePopToken[Id](state)
       ensurePopToken[Arrow](state)
-      Function(i, parseExpression(state))
+      FunctionDefinition(i, parseExpression(state))
     else 
       val t = Reference(i)
       state.moveNext()
