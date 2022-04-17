@@ -20,7 +20,7 @@ case class Memory(val memory: List[MemoryFrame]) {
 
     def assign(name: String, value: MemoryValue): Memory = {
         val frameIndex = memory.indexWhere(frame => frame.contains(name))
-        if frameIndex == -1 then throw new Exception("Variable not found: " + name)
+        if frameIndex == -1 then throw new Exception("Variable not found: " + name.replace("_", ""))
         Memory(memory.updated(frameIndex, memory(frameIndex).updated(name, value)))
     }
 }

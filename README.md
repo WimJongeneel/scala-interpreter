@@ -6,6 +6,7 @@ The [Program](https://github.com/WimJongeneel/scala-interpreter/blob/master/inte
 * Transformers:
     * [ClosureTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ClosureTransformer.scala): adds closures to function definitions
     * [ShadowReferenceTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ShadowReferenceTransformer.scala): renames variables to prevent shadowing
+    * [LiteralOptimizerTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/LiteralOptimizerTransformer.scala): rewrites expressions who's leaves are all literals to one single literal
 * [Runtime](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/runtime/Runtime.scala): executes the code with a treewalker
 
 ## Values and types
