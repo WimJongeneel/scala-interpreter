@@ -5,22 +5,11 @@ import utils._
 
 object ShadowReferenceTransformer extends Transformer {
 
-    def transform(a: List[AST]) = {
-        if a.isEmpty then return a
+    private type RewriteRules = List[Map[String, String]]
 
-        var state: RewriteRules = List(Map())
-        var res = List[AST]()
+    protected override type TransformerState = RewriteRules
 
-        a.foreach(a => {
-            val (s1, newA) = tranformStatement(a).run(state)
-            state = s1
-            res = res.appended(newA)
-        })
-
-        res
-    }
-
-    type RewriteRules = List[Map[String, String]]
+    protected override def emptyState: TransformerState = List(Map.empty)
 
     private def addRewriteRule(rules: RewriteRules, from: String, to: String) =
         rules.updated(0, rules(0).updated(from, to))
@@ -34,8 +23,7 @@ object ShadowReferenceTransformer extends Transformer {
         .map(f => f(from))
         .getOrElse(from)
 
-    // override
-    private def tranformExpression(e: Expression): State[RewriteRules, Expression] = e.match {
+    protected override def tranformExpression(e: Expression): State[RewriteRules, Expression] = e.match {
         case Reference(n) => State(r => (r, Reference(getRewrite(r, n))))
         case CodeBlock(c0) => State(r0 => {
             var state: RewriteRules = r0.prepended(Map.empty)
@@ -56,22 +44,15 @@ object ShadowReferenceTransformer extends Transformer {
             val c1 = c.map(n => getRewrite(r0, n))
             (r0, FunctionDefinition(getRewrite(r3, a), b1, c1))
         })
-        case BinaryOperator(l, o, r) => tranformExpression(l).bind(l => tranformExpression(r).map(r => BinaryOperator(l, o, r)))
-        case UnaryOperator(o, e) => tranformExpression(e).map(e => UnaryOperator(o, e))
-        case IfThenElse(c, t, f) => tranformExpression(c).bind(c => tranformExpression(t).bind(t => tranformExpression(f).map(f => IfThenElse(c, t, f))))
-        case FunctionCall(f, a) => tranformExpression(f).bind(f => tranformExpression(a).map(a => FunctionCall(f, a)))
-        case Literal(n) => State.unit(e)
+        case _ => super.tranformExpression(e)
     }
 
-    private def tranformStatement(s: AST): State[RewriteRules, AST] = s.match {
+    protected override def tranformStatement(s: AST): State[RewriteRules, AST] = s.match {
         case Declaration(n, e) => State(r0 => {
             val r1 = addRewriteRuleFor(r0, n)
             val (r2, e1) = tranformExpression(e).run(r1)
             (r2, Declaration(getRewrite(r2, n), e1))
         })
-        case ExpressionStatement(e) => tranformExpression(e).map(e => ExpressionStatement(e))
-        case PrintExpression(e) => tranformExpression(e).map(e => PrintExpression(e))
-        // TODO: case While
-        case AssignStatement(n, e) => tranformExpression(e).map(e => AssignStatement(n, e))
+        case _ => super.tranformStatement(s)
     }
 }
