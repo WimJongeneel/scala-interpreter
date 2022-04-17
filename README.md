@@ -5,7 +5,7 @@ The [Program](https://github.com/WimJongeneel/scala-interpreter/blob/master/inte
 * [Parser](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/parser/Parser.scala): uses an operator-precedence parser to construct the AST
 * Transformers:
     * [ClosureTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ClosureTransformer.scala): adds closures to function definitions
-    * [ShadowReferenceTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ShadowReferenceTransformer.scala): renames variables to prevent shadowing (WIP)
+    * [ShadowReferenceTransformer](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/transformers/ShadowReferenceTransformer.scala): renames variables to prevent shadowing
 * [Runtime](https://github.com/WimJongeneel/scala-interpreter/blob/master/interpreter/src/main/scala/runtime/Runtime.scala): executes the code with a treewalker
 
 ## Values and types
