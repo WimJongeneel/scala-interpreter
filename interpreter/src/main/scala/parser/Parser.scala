@@ -17,24 +17,20 @@ private def tryParseFunctionCall(state: ParserState, current: Expression) = {
 
 private def parsePrefix(state: ParserState): Expression = state.currentToken() match {
   case Number(n) => {
-    val t = Literal(n)
     state.moveNext()
-    t
+    Literal(n)
   }
   case True() => {
-    val t = Literal(true)
     state.moveNext()
-    t
+    Literal(true)
   }
   case False() => {
-    val t = Literal(false)
     state.moveNext()
-    t
+    Literal(false)
   }
   case Null() => {
-    val t = Literal(null)
     state.moveNext()
-    t
+    Literal(null)
   }
   case Id(i) => {
     if state.peekToken() == Arrow() then 
@@ -42,9 +38,8 @@ private def parsePrefix(state: ParserState): Expression = state.currentToken() m
       ensurePopToken[Arrow](state)
       FunctionDefinition(i, parseExpression(state), Set.empty)
     else 
-      val t = Reference(i)
       state.moveNext()
-      t
+      Reference(i)
   }
   case If() => {
     ensurePopToken[If](state)
