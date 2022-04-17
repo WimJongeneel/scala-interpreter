@@ -21,6 +21,8 @@ case class ProgramBuilder(ast: List[AST] = List(), transformers: List[Transforme
     def parse(code: String) = 
         val newAST = parser.parse(ParserState(lex(code)))
         ProgramBuilder(ast.concat(newAST), transformers)
+
+    def print = program.print
 }
 
 object ProgramBuilder {
@@ -28,5 +30,4 @@ object ProgramBuilder {
     def parse(code: String) = ProgramBuilder(parser.parse(ParserState(lex(code))))
 
     def withTransformer(t: Transformer) = ProgramBuilder(List(), List(t))
-
 }
