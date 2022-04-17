@@ -25,6 +25,10 @@ There are four runtime types in this language: `Number`, `Bool`, `Null` and `Fun
 
 Bools are constructed by the `true` and `false` keyword. A null value can be created with `null`. Numbers are created via literal values, e.g. `1` or `42`
 
+## Variables
+
+Variables are dynamicly typed, have lexial scoping and can shadow other variables. A variable is delecared with `let name := expression;`, where the expression will be strictly evaluated. Variables can be updated with `name := expression;`. Both variable declaration and assignment are statements, but a statement can be converted into an expression by wrapping it in a block expression: `let a := { b := 42; };`. The value of `a` here will be `null`
+
 ## Expressions
 
 **Algebraic:**
