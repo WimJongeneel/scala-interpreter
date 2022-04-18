@@ -60,7 +60,7 @@ Variables are dynamicly typed, have lexial scoping and can shadow other variable
 
 **Functions**
 
-A function is declared with a single parameter name and an arrow.
+A function is declared with a single parameter name and an arrow. They have their own lexial scoping when the `ClosureTransformer` is being used.
 
 ```
 a -> a + 2
@@ -75,7 +75,7 @@ A function is called by providing its formal parameter between parentheses:
 
 **Codeblocks:**
 
-Codeblocks can be used as expressions. They have their own lexial scoping. A codeblock can contain both statements and expressions. The value the last statement evaluates to is what the entire codeblock evaluates to.
+Codeblocks can be used as expressions. A codeblock can contain both statements and expressions. The value the last statement evaluates to is what the entire codeblock evaluates to.
 
 ```
 { let a := 1 + 2; print a; 2; }
